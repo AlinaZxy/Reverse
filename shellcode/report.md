@@ -97,5 +97,7 @@ int main(int argc, char** argv)
 	(int)(*func)();
 }
 ```  
-成功运行
+成功运行  
+![成功运行](./image/成功运行.png)  
+
 

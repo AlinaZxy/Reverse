@@ -4,6 +4,8 @@
  - [x] 参照示例代码，编写dll文件，实现dll注入  
 
 ### 实验过程  
+##### 编写dll  
+
 1. 查看[示例代码](https://github.com/fdiskyou/injectAllTheThings)  
 2. 在dllpoc项目下修改`dllpoc.cpp`  
     ```
@@ -73,4 +75,20 @@
 ![进程号](./img/进程号.png)  
 6. 任务管理器证明  
 ![任务管理器证明](./img/证明.png)  
+
+##### 实现dll注入  
+通过调用`injectAllTheThings.exe`实现将生成dll注入`notepad.exe`  
+注：**要根据目标程序更改dll生成**  
+例如`notepad.exe`程序为64位，在加载dll时要注意改为64位，不然会出现报错  
+![64位](./img/64位.png)  
+
+1. 在主机中打开`notepad.exe`程序，为注入创造条件  
+![打开记事本](./img/打开记事本.png)  
+2. 根据提示运行`injectAllTheThings.exe`实现dll注入  
+`injectAllTheThings.exe -t 1 notepad.exe D:\injectAllTheThings-master\injectAllTheThings-master\x64\Release\dllmain.dll`  
+![注入成功](./img/注入成功.png)  
+3. 弹窗证明  
+![注入成功](./img/成功.png)  
+
+
 

